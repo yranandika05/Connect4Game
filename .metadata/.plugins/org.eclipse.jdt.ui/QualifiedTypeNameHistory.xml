@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="game.view.Game4GewinnView"/>
+    <fullyQualifiedTypeName name="processing.core.PApplet"/>
+    <fullyQualifiedTypeName name="controlP5.ControlP5"/>
+    <fullyQualifiedTypeName name="processing.core.PImage"/>
+    <fullyQualifiedTypeName name="game.model.Game4GewinnModel"/>
+    <fullyQualifiedTypeName name="game.controller.IGame4GewinnView"/>
+    <fullyQualifiedTypeName name="controlP5.ControlP5Constants"/>
+    <fullyQualifiedTypeName name="processing.event.KeyEvent"/>
+    <fullyQualifiedTypeName name="processing.core.PFont"/>
+    <fullyQualifiedTypeName name="game.controller.Game4GewinnController"/>
+</qualifiedTypeNameHistroy>

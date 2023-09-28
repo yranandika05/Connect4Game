@@ -1,0 +1,228 @@
+package game.view;
+
+import game.controller.ClientServerThread;
+import game.controller.Game4GewinnController;
+
+import game.controller.IGame4GewinnController;
+import game.controller.IGame4GewinnView;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.event.KeyEvent;
+import controlP5.*;
+import static controlP5.ControlP5Constants.ACTION_RELEASE;
+
+public class Game4GewinnView extends PApplet implements IGame4GewinnView {
+	private ClientServerThread thread;
+	private IGame4GewinnController controller;
+	private static String network;
+	private static int turn;
+	private int[] board = new int[42];
+	
+	private ControlP5 cp5;
+	private Textfield ipField;
+	private Textfield portField; 
+	private Button startButton;
+	 
+	private Object lock = new Object();
+	 
+	 public Game4GewinnView() {
+		 
+	 }
+	 
+	 //Create a Game4GewinnView server
+	 public static Game4GewinnView newServer(int port) {
+		 var view = new Game4GewinnView();
+		 view.thread = ClientServerThread.newServer(port, view);
+		 view.thread.start();
+		 network = "Server";
+		 turn = 1;
+		 return view;
+	 }
+	 
+	 //Create a Game4GewinnView client
+	 public static Game4GewinnView newClient(String ip, int port) {
+		 var view = new Game4GewinnView();
+		 view.thread = ClientServerThread.newClient(ip, port, view);
+		 view.thread.start();
+		 network = "Client";
+		 turn = 2;
+		 return view;
+	 }
+	 
+	 @Override
+	 public void settings() {
+		 setSize(800, 800);
+		 pixelDensity(2);
+	 }
+	 
+	 
+	 @Override
+	 public void setup() {
+		this.controller = new Game4GewinnController(this, width, height);
+		
+		cp5 = new ControlP5(this);
+		ipField = cp5.addTextfield("IP"); 
+		portField = cp5.addTextfield("Port");
+		startButton = cp5.addButton("Start");
+		
+		
+		
+	 }
+	 
+	 @Override
+	 public void draw() {
+		 controller.nextFrame();
+	 }
+	 
+	 public void drawStartGame() {
+		 background(color(255, 225, 93));
+		 PImage img;
+		 img = loadImage("Aset/Image/Logo.png");
+		 image(img, 115, 100);
+		 
+		 if(network.contentEquals("Server")) {
+			 portField.setLabel("Enter your Port");
+			 portField.setPosition(300, 450);
+			 portField.setSize(200, 40);
+			 
+			 ipField.setLabel("");
+			 ipField.setPosition(0, 0);
+			 ipField.setSize(1, 1);
+			 
+			 startButton.setPosition(300, 530);
+			 startButton.setSize(200, 40);
+			 
+			 startButton.addListenerFor(ACTION_RELEASE, new CallbackListener() {
+				 
+				 @Override
+				 public void controlEvent(CallbackEvent arg0) {
+					 // TODO Auto-generated method stub
+					 controller.startGame();
+					 
+					 portField.setLabel("");
+					 portField.setPosition(0, 0);
+					 portField.setSize(1, 1);
+					 
+					 ipField.setLabel("");
+					 ipField.setPosition(0, 0);
+					 ipField.setSize(1, 1);
+					 
+					 startButton.setPosition(0, 0);
+					 startButton.setSize(1, 1);
+				 }
+			 });
+		 }
+		 
+		 if(network.contentEquals("Client")) {
+			 portField.setLabel("Enter your Port");
+			 portField.setPosition(300, 450);
+			 portField.setSize(200, 40);
+			 
+			 ipField.setLabel("Enter your IP");
+			 ipField.setPosition(300, 530);
+			 ipField.setSize(200, 40);
+			 
+			 startButton.setPosition(300, 610);
+			 startButton.setSize(200, 40);
+			 
+			 startButton.addListenerFor(ACTION_RELEASE, new CallbackListener() {
+				 
+				 @Override
+				 public void controlEvent(CallbackEvent arg0) {
+					
+					 controller.startGame();
+					 
+					 portField.hide();
+					 
+					 ipField.hide();
+					
+					 startButton.hide();
+				 }
+			 });
+		 }
+		 		 
+		 
+		 
+		 
+		 
+		 
+	 }
+	 
+	 public void drawGame() {
+		 background(color(234, 253, 252));
+		 controller.getBoard();
+		 drawSlot();
+		 drawText();
+	 }
+	 
+	 private void drawSlot() {
+		 int x = 190;
+		 int y = 350;
+		 
+		 for(int i = 0; i < board.length; i++) {
+			 board[i] = controller.checkBoard();
+			  if(i%7 == 0 && i != 0) {
+				 y += 70;
+				 x = 190;
+			 }
+			 if(controller.checkBoard(i) == 0) {
+				 fill(255);
+				 ellipse(x, y, 50, 50);	
+				 x += 70;
+			 }
+			 if(controller.checkBoard(i) == 1) {
+				 fill(100);
+				 ellipse(x, y, 50, 50);	
+				 x += 70;
+			 }
+			 if(controller.checkBoard(i) == 2) {
+				 fill(175);
+				 ellipse(x, y, 50, 50);	
+				 x += 70;
+			 }
+			
+		 }
+	 }
+	 
+	 private void drawText() {
+		 //Draw Turn Frame
+		 fill(color(145, 216, 228));
+		 rect(225, 100, 300, 75);
+		 
+		 //Text Turn
+		 fill(color(51, 47, 208));
+		 textSize(38);
+		 text("Player 1's Turn", 255, 145);
+	 }
+	 
+	 public void drawGameOver() {
+		 background(0);
+		 fill(color(51, 47, 208));
+		 textSize(38);
+		 text("player 1 win", 255, 145);
+	 }
+	 
+	 @Override
+	 public void keyPressed(KeyEvent event) {
+		 if(turn == controller.checkTurn()) {
+			 switch (key) {
+			 case '1' -> {controller.insertMove(0);}
+			 case '2' -> {controller.insertMove(1);}
+			 case '3' -> {controller.insertMove(2);}
+			 case '4' -> {controller.insertMove(3);}
+			 case '5' -> {controller.insertMove(4);}
+			 case '6' -> {controller.insertMove(5);}
+			 case '7' -> {controller.insertMove(6);}
+			 }			 
+		 }
+	 }
+	 
+	 public void sendBoard(int n) {
+		 synchronized(lock){
+			 
+		 }
+	 }
+	 
+	 
+}

@@ -1,0 +1,6 @@
+INDEX VERSION 1.131+C:\Users\yohan\Documents\thm\Semester_4\PiS\Projekt\.metadata\.plugins\org.eclipse.jdt.core
+3620466654.index
+1240226744.index
+1865797976.index
+1818251912.index
+3614100704.index

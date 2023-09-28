@@ -1,0 +1,23 @@
+package game.controller;
+
+
+
+public interface IGame4GewinnController {
+
+	public GameState nextFrame();
+
+	public void startGame();
+	
+	public void insertMove(int n);
+	
+	public int checkBoard(int n);
+
+	public int checkTurn();
+
+	public int[] getBoard();
+
+	public void isGameOver();
+
+	//public MyButton initializeCustomButton(float i, float j, int k, int l, String string);
+
+}

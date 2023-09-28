@@ -1,0 +1,12 @@
+package game.view;
+
+import processing.core.PApplet;
+
+public class MainServer {
+
+	public static void main(String[] args) {
+		var view = Game4GewinnView.newServer(8080);
+		PApplet.runSketch(new String[] {"Game4Gewinn"}, view);
+	}
+
+}

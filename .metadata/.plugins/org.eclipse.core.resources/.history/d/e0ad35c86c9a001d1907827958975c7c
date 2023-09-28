@@ -1,0 +1,162 @@
+package game.controller;
+
+import game.model.*;
+
+
+/**
+ * A Controller implementation for a GUI view. This controller creates and uses a game model from package game.model.
+ * It implements a state machine to keep track of the state the view should draw next.
+ * @author Yohanes Kirana
+ *
+ */
+public class Game4GewinnController implements IGame4GewinnController{
+	private Game4GewinnModel game;
+	private boolean gameOver = false;
+	private static Game4GewinnController controller;
+
+	private IGame4GewinnView view;
+	private GameState state;
+	private ClientServerThread thread;
+	
+	/**
+	 * Creates a new controller object with the given view and size
+	 * @param view The view object that should be used by the controller. Cannot be change later.
+	 * @param width The width of the game field.
+	 * @param height The height of the game field.
+	 */
+	public Game4GewinnController(IGame4GewinnView view, int width, int height) {
+		this.view = view;
+		this.game = new Game4GewinnModel(width, height);
+		this.state = GameState.Title_Screen;
+		
+	}
+	
+
+	/**
+	 * Calls the draw methods of view, depending on current game state.
+	 * During the game, this method also check if the game is over.
+	 */
+	public GameState nextFrame() {
+		switch(state) {
+			case Title_Screen -> {
+				view.drawStartGame();
+			}
+			case Game -> {
+				if(gameOver) {
+					state = GameState.Game_Over;
+				}else {					
+					view.drawGame();
+				}
+				
+			}
+			case Game_Over -> {
+				view.drawGameOver();
+			}
+		}
+		return state;
+	}
+	
+	/**
+	 * Change the game state into start game.
+	 */
+	public void startGame() {
+		state = GameState.Game;
+	}
+	
+	public void endGame() {
+		state = GameState.Game_Over;
+	}
+	
+	/**
+	 * Distribute a move that a player made onto model.
+	 * This method also check if the game already over.
+	 */
+	public void insertMove(int n) {
+		game.setMove(n);
+		if(game.isGameOver() == 0) {
+			gameOver = true;
+			view.setWinner(0);
+		}else if(game.isGameOver() == 1) {
+			gameOver = true;
+			view.setWinner(1);	
+		}else if(game.isGameOver() == 2) {
+			gameOver = true;
+			view.setWinner(2);	
+		}
+	}
+	
+	/**
+	 * Distribute the content of selected slot of board.
+	 * @return content of selected slot.
+	 */
+	public int checkBoard(int n) {
+		return game.viewSlot(n);
+	}
+	
+	/**
+	 * Distribute the condition of current board in model.
+	 * @return Array of content of the board.
+	 */
+	public int[] getBoard() {
+		return game.viewBoard();
+	}
+	
+	/**
+	 * Get which turn of player is now making move.
+	 * @return Turn of player.
+	 */
+	public int checkTurn() {
+		return game.getPlayerTurn();
+	}
+	
+	/**
+	 * Get a condition of column and check if it is full.
+	 * @param n Selected column
+	 * @return True if the column is full, false otherwise.
+	 */
+	public boolean isFull(int n) {
+		if(game.isFull(n)) {
+			return true;
+		}else
+		return false;
+	}
+	
+	/**
+	 * Start ClientServerThreadClass without starting a thread.
+	 */
+	public void prepareThread() {
+		controller = view.getController();
+		controller.thread = ClientServerThread.startGame(controller);
+		
+	 }
+	
+	/**
+	 * Initialize new server and start thread for server.
+	 * @param port port of server.
+	 */
+	public  void newServer(int port) {
+		controller.thread.newServer(port);
+		controller.thread.start();
+	}
+	
+	/**
+	 * Initialize new Client and start thread for client.
+	 * @param ip ip address of client
+	 * @param port port of client that should be identical to server.
+	 */
+	public void newClient(String ip, int port) {
+		controller.thread.newClient(ip, port);
+		controller.thread.start();
+	}
+	
+	 /**
+	  * Send player's move into network.
+	  * @param n move of player.
+	  */
+	 public void sendMove(int n) {
+		controller.thread.streamMove(n);
+	 }
+	 
+	
+	
+}

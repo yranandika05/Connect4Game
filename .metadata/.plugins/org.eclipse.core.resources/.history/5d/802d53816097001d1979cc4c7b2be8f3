@@ -1,0 +1,12 @@
+package game.view;
+
+import processing.core.PApplet;
+
+
+abstract class MainClient {
+	public static void main(String[] args) {
+		var view = Game4GewinnView.newClient(8080, "localhost");
+		PApplet.runSketch(new String[] {"Game4Gewinn"}, view);
+	}
+
+}
